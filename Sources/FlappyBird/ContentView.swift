@@ -10,6 +10,7 @@ struct ContentView: View {
                     .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
+        .ignoresSafeArea()
     }
     
     func getScene(size: CGSize) -> SKScene {

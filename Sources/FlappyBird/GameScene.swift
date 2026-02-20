@@ -100,7 +100,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let spawn = SKAction.run { [weak self] in
             self?.createPipes()
         }
-        let delay = SKAction.wait(forDuration: 2.5)
+        let delay = SKAction.wait(forDuration: 1.8)
         let sequence = SKAction.sequence([spawn, delay])
         run(SKAction.repeatForever(sequence))
     }
@@ -112,10 +112,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let gapHeight: CGFloat = 180
         let groundHeight: CGFloat = 100
         
-        // Safety guard for screen size during startup
-        guard self.size.height > (groundHeight + 300) else { return }
+        // Ensure pipe generation is safer and more reliable
+        guard self.size.height > 200 else { return }
         
-        let randomY = CGFloat.random(in: (groundHeight + 150)...(self.size.height - 150))
+        // Randomize the mid-point of the gap
+        let minY = groundHeight + 100
+        let maxY = self.size.height - 100
+        let randomY = CGFloat.random(in: minY...maxY)
         
         let topPipeHeight = self.size.height - randomY - (gapHeight / 2)
         let topPipe = SKSpriteNode(color: .green, size: CGSize(width: pipeWidth, height: topPipeHeight))
