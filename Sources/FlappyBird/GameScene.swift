@@ -26,11 +26,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupScoreLabel()
         
         showStartMessage()
-        
-        // Auto-start for screenshots/accessibility
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-            self?.startGame()
-        }
     }
     
     func showStartMessage() {
@@ -199,13 +194,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
-        if !isStarted { 
-            print("Collision ignored because game hasn't started")
-            return 
-        }
+        if !isStarted { return }
         let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         if contactMask == (birdCategory | pipeCategory) || contactMask == (birdCategory | groundCategory) {
-            print("Collision detected: Game Over")
             if !isGameOver { gameOver() }
         } else if contactMask == (birdCategory | scoreCategory) {
             score += 1
