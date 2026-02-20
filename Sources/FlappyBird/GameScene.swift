@@ -26,6 +26,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupScoreLabel()
         
         showStartMessage()
+        
+        // Auto-start for screenshots/accessibility
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            self?.startGame()
+        }
     }
     
     func showStartMessage() {
@@ -177,15 +182,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if isGameOver {
             resetGame()
         } else if !isStarted {
-            isStarted = true
-            self.physicsWorld.speed = 1
-            childNode(withName: "startMessage")?.removeFromParent()
-            startPipes()
-            bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 11))
+            startGame()
         } else {
             bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
             bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 11)) // Reduced impulse
         }
+    }
+    
+    func startGame() {
+        if isStarted { return }
+        isStarted = true
+        self.physicsWorld.speed = 1
+        childNode(withName: "startMessage")?.removeFromParent()
+        startPipes()
+        bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 11))
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
