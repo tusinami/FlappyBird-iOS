@@ -189,8 +189,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
+        if !isStarted { 
+            print("Collision ignored because game hasn't started")
+            return 
+        }
         let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         if contactMask == (birdCategory | pipeCategory) || contactMask == (birdCategory | groundCategory) {
+            print("Collision detected: Game Over")
             if !isGameOver { gameOver() }
         } else if contactMask == (birdCategory | scoreCategory) {
             score += 1
@@ -203,9 +208,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func gameOver() {
+        if isGameOver || !isStarted { return }
         isGameOver = true
         self.physicsWorld.speed = 0
-        bird.physicsBody?.isDynamic = false
+        self.bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+        
+        // Save score and show UI
         saveScore(score)
         showGameOverUI()
     }
