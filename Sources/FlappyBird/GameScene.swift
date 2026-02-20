@@ -3,8 +3,10 @@ import SwiftUI
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    var bird: SKSpriteNode!
+    var bird: SKLabelNode! // Using SKLabelNode for emoji bird
     var scoreLabel: SKLabelNode!
+    var gameOverLabel: SKLabelNode!
+    var leaderboardLabel: SKLabelNode!
     var score = 0
     var isGameOver = false
     
@@ -33,11 +35,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupBird() {
-        bird = SKSpriteNode(color: .yellow, size: CGSize(width: 30, height: 30))
+        bird = SKLabelNode(text: "🐦")
+        bird.fontSize = 40
         bird.position = CGPoint(x: self.size.width * 0.3, y: self.size.height / 2)
         bird.zPosition = 10
         
-        bird.physicsBody = SKPhysicsBody(rectangleOf: bird.size)
+        // Use a physics body that matches the visual size approximately
+        bird.physicsBody = SKPhysicsBody(circleOfRadius: 15)
         bird.physicsBody?.isDynamic = true
         bird.physicsBody?.categoryBitMask = birdCategory
         bird.physicsBody?.contactTestBitMask = pipeCategory | groundCategory | scoreCategory
@@ -47,8 +51,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupGround() {
-        let ground = SKSpriteNode(color: .brown, size: CGSize(width: self.size.width, height: 50))
-        ground.position = CGPoint(x: self.size.width / 2, y: 25)
+        let groundHeight: CGFloat = 100
+        let ground = SKSpriteNode(color: .brown, size: CGSize(width: self.size.width, height: groundHeight))
+        ground.position = CGPoint(x: self.size.width / 2, y: groundHeight / 2)
         ground.zPosition = 5
         
         ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
@@ -60,8 +65,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setupScoreLabel() {
         scoreLabel = SKLabelNode(text: "0")
-        scoreLabel.position = CGPoint(x: self.size.width / 2, y: self.size.height * 0.8)
-        scoreLabel.fontSize = 40
+        scoreLabel.position = CGPoint(x: self.size.width / 2, y: self.size.height * 0.85)
+        scoreLabel.fontSize = 60
+        scoreLabel.fontName = "AvenirNext-Bold"
         scoreLabel.fontColor = .white
         scoreLabel.zPosition = 100
         addChild(scoreLabel)
@@ -71,7 +77,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let spawn = SKAction.run { [weak self] in
             self?.createPipes()
         }
-        let delay = SKAction.wait(forDuration: 2.0)
+        let delay = SKAction.wait(forDuration: 2.5)
         let sequence = SKAction.sequence([spawn, delay])
         run(SKAction.repeatForever(sequence))
     }
@@ -79,18 +85,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func createPipes() {
         if isGameOver { return }
         
-        let pipeWidth: CGFloat = 50
-        let gapHeight: CGFloat = 150
-        let randomY = CGFloat.random(in: 200...450)
+        let pipeWidth: CGFloat = 60
+        let gapHeight: CGFloat = 180
+        let groundHeight: CGFloat = 100
+        let playableHeight = self.size.height - groundHeight
+        let randomY = CGFloat.random(in: (groundHeight + 150)...(self.size.height - 150))
         
-        let topPipe = SKSpriteNode(color: .green, size: CGSize(width: pipeWidth, height: 600))
-        topPipe.position = CGPoint(x: self.size.width + pipeWidth, y: randomY + gapHeight / 2 + 300)
+        let topPipeHeight = self.size.height - randomY - (gapHeight / 2)
+        let topPipe = SKSpriteNode(color: .green, size: CGSize(width: pipeWidth, height: topPipeHeight))
+        topPipe.position = CGPoint(x: self.size.width + pipeWidth, y: self.size.height - topPipeHeight / 2)
         topPipe.physicsBody = SKPhysicsBody(rectangleOf: topPipe.size)
         topPipe.physicsBody?.isDynamic = false
         topPipe.physicsBody?.categoryBitMask = pipeCategory
         
-        let bottomPipe = SKSpriteNode(color: .green, size: CGSize(width: pipeWidth, height: 600))
-        bottomPipe.position = CGPoint(x: self.size.width + pipeWidth, y: randomY - gapHeight / 2 - 300)
+        let bottomPipeHeight = randomY - (gapHeight / 2) - groundHeight
+        let bottomPipe = SKSpriteNode(color: .green, size: CGSize(width: pipeWidth, height: bottomPipeHeight))
+        bottomPipe.position = CGPoint(x: self.size.width + pipeWidth, y: groundHeight + bottomPipeHeight / 2)
         bottomPipe.physicsBody = SKPhysicsBody(rectangleOf: bottomPipe.size)
         bottomPipe.physicsBody?.isDynamic = false
         bottomPipe.physicsBody?.categoryBitMask = pipeCategory
@@ -101,7 +111,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreNode.physicsBody?.isDynamic = false
         scoreNode.physicsBody?.categoryBitMask = scoreCategory
         
-        let moveAction = SKAction.moveBy(x: -self.size.width - 200, y: 0, duration: 4.0)
+        let moveAction = SKAction.moveBy(x: -self.size.width - 200, y: 0, duration: 5.0)
         let removeAction = SKAction.removeFromParent()
         let sequence = SKAction.sequence([moveAction, removeAction])
         
@@ -119,7 +129,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             resetGame()
         } else {
             bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-            bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 10))
+            bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 15))
         }
     }
     
@@ -127,7 +137,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         
         if contactMask == (birdCategory | pipeCategory) || contactMask == (birdCategory | groundCategory) {
-            gameOver()
+            if !isGameOver {
+                gameOver()
+            }
         } else if contactMask == (birdCategory | scoreCategory) {
             score += 1
             scoreLabel.text = "\(score)"
@@ -137,7 +149,62 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func gameOver() {
         isGameOver = true
         self.physicsWorld.speed = 0
-        bird.color = .red
+        bird.physicsBody?.isDynamic = false
+        
+        saveScore(score)
+        showGameOverUI()
+    }
+    
+    func saveScore(_ score: Int) {
+        var highScores = UserDefaults.standard.array(forKey: "HighScores") as? [Int] ?? []
+        highScores.append(score)
+        highScores.sort(by: >)
+        if highScores.count > 10 {
+            highScores = Array(highScores.prefix(10))
+        }
+        UserDefaults.standard.set(highScores, forKey: "HighScores")
+    }
+    
+    func showGameOverUI() {
+        let background = SKShapeNode(rectOf: CGSize(width: self.size.width * 0.8, height: self.size.height * 0.6), cornerRadius: 20)
+        background.fillColor = SKColor(white: 0, alpha: 0.7)
+        background.strokeColor = .white
+        background.position = CGPoint(x: self.size.width / 2, y: self.size.height / 2)
+        background.zPosition = 200
+        addChild(background)
+        
+        gameOverLabel = SKLabelNode(text: "GAME OVER")
+        gameOverLabel.fontName = "AvenirNext-Bold"
+        gameOverLabel.fontSize = 40
+        gameOverLabel.position = CGPoint(x: 0, y: background.frame.height / 2 - 60)
+        gameOverLabel.zPosition = 201
+        background.addChild(gameOverLabel)
+        
+        let currentScoreLabel = SKLabelNode(text: "Score: \(score)")
+        currentScoreLabel.fontSize = 30
+        currentScoreLabel.position = CGPoint(x: 0, y: gameOverLabel.position.y - 50)
+        currentScoreLabel.zPosition = 201
+        background.addChild(currentScoreLabel)
+        
+        let highScores = UserDefaults.standard.array(forKey: "HighScores") as? [Int] ?? []
+        var leaderboardText = "TOP 10:\n"
+        for (index, s) in highScores.enumerated() {
+            leaderboardText += "\(index + 1). \(s)\n"
+        }
+        
+        leaderboardLabel = SKLabelNode(text: leaderboardText)
+        leaderboardLabel.numberOfLines = 0
+        leaderboardLabel.fontSize = 20
+        leaderboardLabel.horizontalAlignmentMode = .center
+        leaderboardLabel.position = CGPoint(x: 0, y: currentScoreLabel.position.y - 200)
+        leaderboardLabel.zPosition = 201
+        background.addChild(leaderboardLabel)
+        
+        let restartLabel = SKLabelNode(text: "Tap to Restart")
+        restartLabel.fontSize = 25
+        restartLabel.position = CGPoint(x: 0, y: -background.frame.height / 2 + 40)
+        restartLabel.zPosition = 201
+        background.addChild(restartLabel)
     }
     
     func resetGame() {

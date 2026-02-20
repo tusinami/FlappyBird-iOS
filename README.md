@@ -4,9 +4,13 @@ A Flappy Bird clone built with **SwiftUI** and **SpriteKit** for iOS.
 
 ## Version Info
 
-- **Current Version**: `v1.0.0`
-- **Last Updated**: `2026-02-21 00:25:00 (UTC+8)`
-- **Change Log**: Initial release of the Flappy Bird prototype.
+- **Current Version**: `v1.1.0`
+- **Last Updated**: `2026-02-21 00:33:00 (UTC+8)`
+- **Change Log**: 
+  - Added bird emoji character (🐦).
+  - Implemented full-screen support for iPhone 17 Pro.
+  - Added real-time scoring display.
+  - Added Game Over screen with Top 10 Leaderboard.
 
 ## Features
 
