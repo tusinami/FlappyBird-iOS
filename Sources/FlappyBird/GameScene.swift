@@ -3,7 +3,7 @@ import SwiftUI
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    var bird: SKLabelNode! // Using SKLabelNode for emoji bird
+    var bird: SKSpriteNode!
     var scoreLabel: SKLabelNode!
     var gameOverLabel: SKLabelNode!
     var leaderboardLabel: SKLabelNode!
@@ -34,13 +34,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(background)
     }
     
+    func createBirdTexture() -> SKTexture {
+        let size = CGSize(width: 40, height: 40)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let image = renderer.image { context in
+            let cgContext = context.cgContext
+            
+            // Body (Yellow Pixel Rectangle)
+            cgContext.setFillColor(UIColor.yellow.cgColor)
+            cgContext.fill(CGRect(x: 5, y: 10, width: 25, height: 20))
+            
+            // Wing (White Pixel Rectangle)
+            cgContext.setFillColor(UIColor.white.cgColor)
+            cgContext.fill(CGRect(x: 5, y: 15, width: 10, height: 10))
+            
+            // Eye (Black Pixel)
+            cgContext.setFillColor(UIColor.black.cgColor)
+            cgContext.fill(CGRect(x: 23, y: 13, width: 4, height: 4))
+            
+            // Beak (Orange Pixel Rectangle)
+            cgContext.setFillColor(UIColor.orange.cgColor)
+            cgContext.fill(CGRect(x: 28, y: 18, width: 7, height: 7))
+        }
+        return SKTexture(image: image)
+    }
+    
     func setupBird() {
-        bird = SKLabelNode(text: "🐦")
-        bird.fontSize = 40
+        bird = SKSpriteNode(texture: createBirdTexture())
         bird.position = CGPoint(x: self.size.width * 0.3, y: self.size.height / 2)
         bird.zPosition = 10
         
-        // Use a physics body that matches the visual size approximately
         bird.physicsBody = SKPhysicsBody(circleOfRadius: 15)
         bird.physicsBody?.isDynamic = true
         bird.physicsBody?.categoryBitMask = birdCategory
@@ -88,7 +111,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let pipeWidth: CGFloat = 60
         let gapHeight: CGFloat = 180
         let groundHeight: CGFloat = 100
-        let playableHeight = self.size.height - groundHeight
+        
+        // Safety guard for screen size during startup
+        guard self.size.height > (groundHeight + 300) else { return }
+        
         let randomY = CGFloat.random(in: (groundHeight + 150)...(self.size.height - 150))
         
         let topPipeHeight = self.size.height - randomY - (gapHeight / 2)

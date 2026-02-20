@@ -4,13 +4,13 @@ A Flappy Bird clone built with **SwiftUI** and **SpriteKit** for iOS.
 
 ## Version Info
 
-- **Current Version**: `v1.1.0`
-- **Last Updated**: `2026-02-21 00:33:00 (UTC+8)`
+- **Current Version**: `v1.1.1`
+- **Last Updated**: `2026-02-21 00:35:00 (UTC+8)`
 - **Change Log**: 
-  - Added bird emoji character (🐦).
-  - Implemented full-screen support for iPhone 17 Pro.
-  - Added real-time scoring display.
-  - Added Game Over screen with Top 10 Leaderboard.
+  - Fixed startup crash related to invalid range in `createPipes()`.
+  - Added safety checks for `GeometryReader` screen size.
+  - Replaced bird character with a custom **Procedural Pixel Bird** character.
+  - Optimized full-screen rendering for iPhone 17 Pro.
 
 ## Features
 
