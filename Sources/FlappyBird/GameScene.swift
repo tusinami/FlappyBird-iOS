@@ -8,6 +8,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var gameOverNode: SKNode?
     var score = 0
     var isGameOver = false
+    var isStarted = false
     
     let birdCategory: UInt32 = 0x1 << 0
     let pipeCategory: UInt32 = 0x1 << 1
@@ -16,14 +17,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         self.physicsWorld.contactDelegate = self
-        self.physicsWorld.gravity = CGVector(dx: 0, dy: -6.0) // Slightly stronger gravity for snappier feel
+        self.physicsWorld.gravity = CGVector(dx: 0, dy: -6.0)
+        self.physicsWorld.speed = 0 // Freeze until start
         
         setupBackground()
         setupBird()
         setupGround()
         setupScoreLabel()
         
-        startPipes()
+        showStartMessage()
+    }
+    
+    func showStartMessage() {
+        let label = SKLabelNode(text: "TAP TO START")
+        label.name = "startMessage"
+        label.fontName = "AvenirNext-Bold"
+        label.fontSize = 30
+        label.position = CGPoint(x: self.size.width / 2, y: self.size.height / 2 + 50)
+        label.zPosition = 100
+        addChild(label)
     }
     
     func setupBackground() {
@@ -164,6 +176,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if isGameOver {
             resetGame()
+        } else if !isStarted {
+            isStarted = true
+            self.physicsWorld.speed = 1
+            childNode(withName: "startMessage")?.removeFromParent()
+            startPipes()
+            bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 11))
         } else {
             bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
             bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 11)) // Reduced impulse
