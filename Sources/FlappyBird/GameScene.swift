@@ -177,6 +177,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if contactMask == (birdCategory | scoreCategory) {
             score += 1
             scoreLabel.text = "\(score)"
+            // Sync shadow text
+            if let shadow = scoreLabel.children.first as? SKLabelNode {
+                shadow.text = "\(score)"
+            }
         }
     }
     
@@ -203,7 +207,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         gameOverNode = board
         addChild(board)
         
-        let bg = SKShapeNode(rectOf: CGSize(width: 300, height: 450), cornerRadius: 15)
+        // Increased height from 450 to 500
+        let bg = SKShapeNode(rectOf: CGSize(width: 300, height: 500), cornerRadius: 15)
         bg.fillColor = SKColor(red: 0.95, green: 0.9, blue: 0.7, alpha: 1.0)
         bg.strokeColor = SKColor(red: 0.4, green: 0.3, blue: 0.1, alpha: 1.0)
         bg.lineWidth = 4
@@ -213,27 +218,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         title.fontName = "AvenirNext-Bold"
         title.fontSize = 36
         title.fontColor = SKColor(red: 0.4, green: 0.3, blue: 0.1, alpha: 1.0)
-        title.position = CGPoint(x: 0, y: 170)
+        title.position = CGPoint(x: 0, y: 200) // Adjusted y from 170
         board.addChild(title)
         
         let scoreTitle = SKLabelNode(text: "SCORE")
         scoreTitle.fontName = "AvenirNext-Medium"
         scoreTitle.fontSize = 18
         scoreTitle.fontColor = .darkGray
-        scoreTitle.position = CGPoint(x: 0, y: 120)
+        scoreTitle.position = CGPoint(x: 0, y: 150) // Adjusted y from 120
         board.addChild(scoreTitle)
         
         let scoreValue = SKLabelNode(text: "\(score)")
         scoreValue.fontName = "AvenirNext-Bold"
         scoreValue.fontSize = 48
         scoreValue.fontColor = .black
-        scoreValue.position = CGPoint(x: 0, y: 80)
+        scoreValue.position = CGPoint(x: 0, y: 110) // Adjusted y from 80
         board.addChild(scoreValue)
         
         let line = SKShapeNode(rectOf: CGSize(width: 240, height: 2))
         line.fillColor = SKColor(white: 0, alpha: 0.1)
         line.strokeColor = .clear
-        line.position = CGPoint(x: 0, y: 60)
+        line.position = CGPoint(x: 0, y: 90) // Adjusted y from 60
         board.addChild(line)
         
         let highScores = UserDefaults.standard.array(forKey: "HighScores") as? [Int] ?? []
@@ -241,11 +246,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         lbTitle.fontName = "AvenirNext-Bold"
         lbTitle.fontSize = 14
         lbTitle.fontColor = .darkGray
-        lbTitle.position = CGPoint(x: 0, y: 35)
+        lbTitle.position = CGPoint(x: 0, y: 65) // Adjusted y from 35
         board.addChild(lbTitle)
         
         for (index, s) in highScores.enumerated() {
-            let yPos = CGFloat(10 - index * 22)
+            let yPos = CGFloat(40 - index * 22) // Adjusted starting yPos from 10
             let rankLabel = SKLabelNode(text: "\(index + 1).")
             rankLabel.fontName = "AvenirNext-Medium"
             rankLabel.fontSize = 16
@@ -267,7 +272,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         restart.fontName = "AvenirNext-Bold"
         restart.fontSize = 20
         restart.fontColor = SKColor(red: 0.8, green: 0.4, blue: 0.2, alpha: 1.0)
-        restart.position = CGPoint(x: 0, y: -180)
+        restart.position = CGPoint(x: 0, y: -210) // Adjusted y from -180
         board.addChild(restart)
         
         let scaleUp = SKAction.scale(to: 1.05, duration: 0.1)

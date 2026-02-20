@@ -4,13 +4,12 @@ A Flappy Bird clone built with **SwiftUI** and **SpriteKit** for iOS.
 
 ## Version Info
 
-- **Current Version**: `v1.2.0`
-- **Last Updated**: `2026-02-21 00:43:00 (UTC+8)`
+- **Current Version**: `v1.2.1`
+- **Last Updated**: `2026-02-21 00:53:00 (UTC+8)`
 - **Change Log**: 
-  - **Major UI Overhaul**: Redesigned Game Over screen with a central leaderboard card.
-  - **Gameplay Balancing**: Reduced bird jump impulse and widened pipe gaps for a better experience.
-  - **Visual Polish**: Added pipe caps and better score shadows.
-  - Fixed various SpriteKit API compatibility issues across iOS versions.
+  - Fixed Score Shadow synchronization (removed "ghosting" 0).
+  - Adjusted Game Over board layout to prevent Ranking list overlap.
+  - Optimized font sizes and vertical spacing for modern iPhone displays.
 
 ## Features
 
